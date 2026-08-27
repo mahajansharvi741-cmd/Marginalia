@@ -23,7 +23,6 @@ import streamlit as st
 import streamlit.components.v1 as components
 from PIL import Image
 import pytesseract
-import anthropic
 from gtts import gTTS
 
 # ---------------- CONFIG ----------------
@@ -33,7 +32,11 @@ DAILY_LIMIT = 50
 USAGE_FILE = Path("usage_count.json")
 
 try:
-    client = anthropic.Anthropic()
+    from google import genai
+
+    client = genai.Client(
+        api_key=st.secrets["API_key"]
+    )
 except Exception:
     client = None
 
@@ -82,14 +85,16 @@ def check_password() -> bool:
             st.error("Incorrect password.")
     return False
 
-
-def ask_claude(prompt: str, max_tokens: int = 1500) -> str:
-    response = client.messages.create(
-        model="claude-sonnet-4-6",
-        max_tokens=max_tokens,
-        messages=[{"role": "user", "content": prompt}],
+def ask_gemini(prompt: str, max_tokens: int = 1500) -> str:
+    response = client.models.generate_content(
+        model="gemini-2.5-flash-lite",
+        contents=prompt,
+        config={
+            "max_output_tokens": max_tokens
+        }
     )
-    return response.content[0].text
+    return response.text
+
 
 
 # ---------------- FEATURE 1: NOTES EXPANDER ----------------
@@ -117,7 +122,7 @@ Raw extracted text:
 ---
 
 Write the expanded, detailed explanation now (markdown format)."""
-    return ask_claude(prompt, max_tokens=2000)
+    return ask_gemini(prompt, max_tokens=2000)
 
 
 def render_notes_expander():
@@ -179,7 +184,7 @@ Topic/content:
 {topic_or_text}
 ---
 """
-    result = ask_claude(prompt, max_tokens=600)
+    result = ask_gemini(prompt, max_tokens=600)
     # strip accidental code fences
     result = result.replace("```mermaid", "").replace("```", "").strip()
     return result
@@ -229,7 +234,7 @@ Passage:
 {text}
 ---
 """
-    return ask_claude(prompt, max_tokens=500)
+    return ask_gemini(prompt, max_tokens=500)
 
 
 def text_to_speech(text: str) -> str:
@@ -290,10 +295,9 @@ if not check_password():
     st.stop()
 
 if client is None:
-    st.warning(
-        "No ANTHROPIC_API_KEY found. Set it as an environment variable before "
-        "running this app (see README.md)."
-    )
+  st.warning(
+    "No GEMINI_API_KEY found. Add it to Streamlit Secrets."
+   )
 
 tab1, tab2, tab3 = st.tabs(["📝 Expand Notes", "📊 Generate Diagram", "🎧 Book Reader"])
 
