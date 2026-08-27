@@ -86,14 +86,11 @@ def check_password() -> bool:
     return False
 
 def ask_gemini(prompt: str, max_tokens: int = 1500) -> str:
-    response = client.models.generate_content(
-        model="gemini-2.5-flash-lite",
-        contents=prompt,
-        config={
-            "max_output_tokens": max_tokens
-        }
+    interaction = client.interactions.create(
+        model="gemini-3.7-flash",
+        input=prompt
     )
-    return response.text
+    return interaction.output_text
 
 
 
