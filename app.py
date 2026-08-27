@@ -296,7 +296,7 @@ if not check_password():
 
 if client is None:
   st.warning(
-    "No GEMINI_API_KEY found. Add it to Streamlit Secrets."
+    "No API_key found. Add it to Streamlit Secrets."
    )
 
 tab1, tab2, tab3 = st.tabs(["📝 Expand Notes", "📊 Generate Diagram", "🎧 Book Reader"])
