@@ -1,5 +1,8 @@
 streamlit
 pytesseract
 pillow
+<<<<<<< HEAD
 google-generativeai
+=======
+>>>>>>> 75414189638a5a4d0a2fb29d7e2ea5e612a1308e
 gtts
