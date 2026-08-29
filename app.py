@@ -27,10 +27,7 @@ import streamlit as st
 import streamlit.components.v1 as components
 from PIL import Image
 import pytesseract
-<<<<<<< HEAD
-import google.generativeai as genai
-=======
->>>>>>> 75414189638a5a4d0a2fb29d7e2ea5e612a1308e
+from google import genai
 from gtts import gTTS
 
 # ---------------- CONFIG ----------------
@@ -39,23 +36,11 @@ st.set_page_config(page_title="StudyBoost", page_icon="📚", layout="centered")
 DAILY_LIMIT = 50
 USAGE_FILE = Path("usage_count.json")
 
-<<<<<<< HEAD
 GEMINI_API_KEY = os.environ.get("GEMINI_API_KEY") or st.secrets.get("GEMINI_API_KEY", None)
 
-model = None
+client = None
 if GEMINI_API_KEY:
-    genai.configure(api_key=GEMINI_API_KEY)
-    model = genai.GenerativeModel("gemini-2.5-flash")
-=======
-try:
-    from google import genai
-
-    client = genai.Client(
-        api_key=st.secrets["API_key"]
-    )
-except Exception:
-    client = None
->>>>>>> 75414189638a5a4d0a2fb29d7e2ea5e612a1308e
+    client = genai.Client(api_key=GEMINI_API_KEY)
 
 
 def get_usage_count() -> int:
@@ -82,7 +67,9 @@ def usage_ok() -> bool:
 
 
 def ask_gemini(prompt: str) -> str:
-    response = model.generate_content(prompt)
+    response = client.models.generate_content(
+        model="gemini-2.5-flash", contents=prompt
+    )
     return response.text
 
 
@@ -106,21 +93,8 @@ def check_password() -> bool:
             st.error("Incorrect password.")
     return False
 
-<<<<<<< HEAD
 
 # ---------------- FEATURE 1: NOTES EXPANDER (+ built-in diagram) ----------------
-=======
-def ask_gemini(prompt: str, max_tokens: int = 1500) -> str:
-    interaction = client.interactions.create(
-        model="gemini-3.7-flash",
-        input=prompt
-    )
-    return interaction.output_text
-
-
-
-# ---------------- FEATURE 1: NOTES EXPANDER ----------------
->>>>>>> 75414189638a5a4d0a2fb29d7e2ea5e612a1308e
 
 def extract_text_from_image(image: Image.Image) -> str:
     return pytesseract.image_to_string(image)
@@ -145,7 +119,6 @@ Raw extracted text:
 ---
 
 Write the expanded, detailed explanation now (markdown format)."""
-<<<<<<< HEAD
     return ask_gemini(prompt)
 
 
@@ -178,9 +151,6 @@ Notes:
     result = ask_gemini(prompt)
     result = result.replace("```mermaid", "").replace("```", "").strip()
     return result
-=======
-    return ask_gemini(prompt, max_tokens=2000)
->>>>>>> 75414189638a5a4d0a2fb29d7e2ea5e612a1308e
 
 
 def render_notes_expander():
@@ -209,7 +179,7 @@ def render_notes_expander():
                     st.write(raw_text)
 
                 expanded = None
-                if model is not None:
+                if client is not None:
                     with st.spinner("Generating detailed explanation..."):
                         try:
                             expanded = expand_content(raw_text)
@@ -238,72 +208,7 @@ def render_notes_expander():
                     st.info("Add your Gemini API key to see the AI-expanded explanation.")
 
 
-<<<<<<< HEAD
 # ---------------- FEATURE 2: BOOK READER (TTS + MEANING NOTES) ----------------
-=======
-# ---------------- FEATURE 2: DIAGRAM GENERATOR ----------------
-
-MERMAID_HTML_TEMPLATE = """
-<div class="mermaid">
-{diagram}
-</div>
-<script type="module">
-  import mermaid from 'https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.esm.min.mjs';
-  mermaid.initialize({{ startOnLoad: true, theme: 'neutral' }});
-</script>
-"""
-
-
-def generate_flowchart(topic_or_text: str) -> str:
-    prompt = f"""Convert the following topic or explanation into a Mermaid.js
-flowchart diagram (use "flowchart TD" syntax). Keep it to 5-10 nodes,
-using short, clear labels. Return ONLY the raw Mermaid code, nothing else —
-no markdown fences, no explanation text.
-
-Topic/content:
----
-{topic_or_text}
----
-"""
-    result = ask_gemini(prompt, max_tokens=600)
-    # strip accidental code fences
-    result = result.replace("```mermaid", "").replace("```", "").strip()
-    return result
-
-
-def render_diagram_generator():
-    st.subheader("📊 Diagram Generator")
-    st.caption("Describe a process, cycle, or concept — get a visual flowchart.")
-
-    topic = st.text_area(
-        "Describe the topic or paste the explanation",
-        placeholder="e.g. The water cycle: evaporation, condensation, precipitation, collection",
-        height=120,
-    )
-
-    if usage_ok() and st.button("🧭 Generate diagram"):
-        if not topic.strip():
-            st.error("Please enter a topic or some text first.")
-        elif client is not None:
-            with st.spinner("Designing the flowchart..."):
-                try:
-                    diagram_code = generate_flowchart(topic)
-                    increment_usage_count()
-                    components.html(
-                        MERMAID_HTML_TEMPLATE.format(diagram=diagram_code),
-                        height=420,
-                        scrolling=True,
-                    )
-                    with st.expander("View diagram code (Mermaid syntax)"):
-                        st.code(diagram_code, language="text")
-                except Exception as e:
-                    st.error(f"Something went wrong: {e}")
-        else:
-            st.info("Add your API key to generate diagrams.")
-
-
-# ---------------- FEATURE 3: BOOK READER (TTS + MEANING NOTES) ----------------
->>>>>>> 75414189638a5a4d0a2fb29d7e2ea5e612a1308e
 
 def generate_meaning_notes(text: str) -> str:
     prompt = f"""You are a thoughtful literature companion. Below is a passage
@@ -316,11 +221,7 @@ Passage:
 {text}
 ---
 """
-<<<<<<< HEAD
     return ask_gemini(prompt)
-=======
-    return ask_gemini(prompt, max_tokens=500)
->>>>>>> 75414189638a5a4d0a2fb29d7e2ea5e612a1308e
 
 
 def text_to_speech(text: str) -> str:
@@ -358,7 +259,7 @@ def render_book_reader():
                 except Exception as e:
                     st.error(f"Text-to-speech failed: {e}")
 
-            if include_notes and model is not None:
+            if include_notes and client is not None:
                 with st.spinner("Thinking about what it means..."):
                     try:
                         notes = generate_meaning_notes(passage)
@@ -379,19 +280,12 @@ st.caption("Free AI study companion — notes explained with diagrams, books nar
 if not check_password():
     st.stop()
 
-<<<<<<< HEAD
-if model is None:
+if client is None:
     st.warning(
         "No GEMINI_API_KEY found. Set it as an environment variable before "
         "running this app (see README.md). Get a free key at "
         "https://aistudio.google.com/apikey"
     )
-=======
-if client is None:
-  st.warning(
-    "No API_key found. Add it to Streamlit Secrets."
-   )
->>>>>>> 75414189638a5a4d0a2fb29d7e2ea5e612a1308e
 
 tab1, tab2 = st.tabs(["📝 Expand Notes", "🎧 Book Reader"])
 
