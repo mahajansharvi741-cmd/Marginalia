@@ -68,7 +68,7 @@ def usage_ok() -> bool:
 
 def ask_gemini(prompt: str) -> str:
     response = client.models.generate_content(
-        model="gemini-2.5-flash", contents=prompt
+        model="gemini-3.6-flash", contents=prompt
     )
     return response.text
 
