@@ -2,12 +2,13 @@
 
 A free AI study companion for school/college students, with two features:
 
-1. **📝 Notes Expander** — upload a photo of notes/a textbook page → get it
-   OCR'd, expanded into a detailed, easy-to-understand explanation, AND a
-   visual flowchart diagram of the key process — all in one place.
-2. **🎧 Book Reader** — paste a passage from a book → listen to it read aloud
-   (text-to-speech), with optional AI notes on the deeper meaning/motive
-   behind key lines.
+1. **📝 Notes Expander** — upload a photo of notes/a textbook page, choose a
+   mark weightage (5/10/15/20), and get a full exam-style answer written in
+   easy language, with 1-2 diagrams generated to match.
+2. **🎧 Book Reader** — upload a photo of a book/story page → hear it read
+   aloud (text-to-speech) in English, Hindi, Punjabi, or Hinglish, with
+   optional AI notes on the deeper meaning/motive behind key lines, in the
+   same language.
 
 Runs on Google's **Gemini API free tier** — no credit card needed, good for
 students. (~1,500 free requests/day on the model used here, as of 2026 —
@@ -62,12 +63,18 @@ It'll open in your browser automatically, usually at http://localhost:8501
 
 ## What's built
 
-- [x] Image upload → OCR → AI-expanded content, with an auto-generated
-      diagram shown right alongside it
-- [x] Text-to-speech for passages, with "meaning/motive" side-notes
+- [x] Image upload → OCR → AI-written exam answer (choose 5/10/15/20 marks),
+      with 1-2 diagrams generated to match the answer's depth
+- [x] Text-to-speech from photos of book pages (English/Hindi/Punjabi/
+      Hinglish), with "meaning/motive" side-notes in the same language
 - [x] Daily usage cap to protect your API key from being drained
 - [x] Optional password protection (see below)
 - [ ] Full-book upload (currently works on pasted passages, not entire PDFs)
+
+Note: a 20-mark answer uses more AI calls (1 for the answer + 2 for
+diagrams) than a 5-mark one, so it counts more against your daily usage cap
+and Gemini's free-tier rate limits. If you or friends hit a rate-limit
+error on heavy use, just wait a minute and try again.
 
 ## Password protection
 
