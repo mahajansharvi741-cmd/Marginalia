@@ -33,6 +33,126 @@ from gtts import gTTS
 # ---------------- CONFIG ----------------
 st.set_page_config(page_title="StudyBoost", page_icon="📚", layout="centered")
 
+CUSTOM_CSS = """
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,600;9..144,700&family=IBM+Plex+Sans:wght@400;500;600;700&display=swap');
+
+:root {
+    --ink: #1E2A3A;
+    --ink-soft: #4A5A70;
+    --paper: #FBF8F2;
+    --marigold: #E29332;
+    --marigold-dark: #B5701D;
+    --sage: #6E8B6A;
+    --sage-soft: #E6EDE3;
+}
+
+html, body, [class*="css"] {
+    font-family: 'IBM Plex Sans', sans-serif;
+}
+
+/* Main app background */
+.stApp {
+    background: var(--paper);
+}
+
+/* Headings use the display serif */
+h1, h2, h3 {
+    font-family: 'Fraunces', serif !important;
+    color: var(--ink) !important;
+    letter-spacing: -0.01em;
+}
+
+h1 {
+    font-weight: 600 !important;
+}
+
+/* Hero banner for the title */
+.hero-banner {
+    background: var(--ink);
+    color: var(--paper);
+    padding: 28px 32px;
+    border-radius: 14px;
+    margin-bottom: 28px;
+}
+.hero-banner h1 {
+    color: var(--paper) !important;
+    margin: 0 0 6px 0 !important;
+    font-size: 32px !important;
+}
+.hero-banner p {
+    color: #C7CEDA;
+    margin: 0;
+    font-size: 15px;
+}
+
+/* Tabs styling */
+.stTabs [data-baseweb="tab-list"] {
+    gap: 4px;
+    background: #F0EBE0;
+    padding: 6px;
+    border-radius: 10px;
+}
+.stTabs [data-baseweb="tab"] {
+    height: 42px;
+    border-radius: 8px;
+    font-weight: 600;
+    color: var(--ink-soft);
+}
+.stTabs [aria-selected="true"] {
+    background: var(--paper) !important;
+    color: var(--ink) !important;
+    box-shadow: 0 1px 4px rgba(0,0,0,0.08);
+}
+
+/* Buttons */
+.stButton button {
+    background: var(--marigold) !important;
+    color: white !important;
+    border: none !important;
+    border-radius: 8px !important;
+    font-weight: 600 !important;
+    padding: 10px 20px !important;
+    transition: background 0.2s !important;
+}
+.stButton button:hover {
+    background: var(--marigold-dark) !important;
+}
+
+/* Radio buttons (marks selector) styled like pill tabs */
+.stRadio [role="radiogroup"] {
+    gap: 8px;
+}
+
+/* File uploader */
+[data-testid="stFileUploaderDropzone"] {
+    background: #FFFEFB !important;
+    border: 2px dashed #C9BFA5 !important;
+    border-radius: 10px !important;
+}
+
+/* Expanders */
+.streamlit-expanderHeader {
+    background: var(--sage-soft) !important;
+    border-radius: 8px !important;
+    font-weight: 600 !important;
+    color: #3E5A3A !important;
+}
+
+/* Info/success/warning boxes */
+div[data-testid="stAlert"] {
+    border-radius: 10px;
+}
+
+/* Captions */
+.stCaption, [data-testid="stCaptionContainer"] {
+    color: var(--ink-soft) !important;
+}
+</style>
+"""
+
+st.markdown(CUSTOM_CSS, unsafe_allow_html=True)
+
 DAILY_LIMIT = 50
 USAGE_FILE = Path("usage_count.json")
 
@@ -444,8 +564,15 @@ def render_book_reader():
 
 # ---------------- MAIN APP ----------------
 
-st.title("📚 StudyBoost")
-st.caption("Free AI study companion — notes explained with diagrams, books narrated.")
+st.markdown(
+    """
+    <div class="hero-banner">
+        <h1>📚 StudyBoost</h1>
+        <p>Free AI study companion — notes explained with diagrams, books narrated.</p>
+    </div>
+    """,
+    unsafe_allow_html=True,
+)
 
 if not check_password():
     st.stop()
