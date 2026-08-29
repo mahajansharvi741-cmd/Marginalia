@@ -1,14 +1,17 @@
 # StudyBoost
 
-A free AI study companion for school/college students, with three features:
+A free AI study companion for school/college students, with two features:
 
 1. **📝 Notes Expander** — upload a photo of notes/a textbook page → get it
-   OCR'd and expanded into a detailed, easy-to-understand explanation.
-2. **📊 Diagram Generator** — describe any topic, process, or cycle → get an
-   auto-generated visual flowchart (via Mermaid.js).
-3. **🎧 Book Reader** — paste a passage from a book → listen to it read aloud
+   OCR'd, expanded into a detailed, easy-to-understand explanation, AND a
+   visual flowchart diagram of the key process — all in one place.
+2. **🎧 Book Reader** — paste a passage from a book → listen to it read aloud
    (text-to-speech), with optional AI notes on the deeper meaning/motive
    behind key lines.
+
+Runs on Google's **Gemini API free tier** — no credit card needed, good for
+students. (~1,500 free requests/day on the model used here, as of 2026 —
+plenty for personal/small-group use.)
 
 ## 1. Install Python packages
 
@@ -28,21 +31,22 @@ program installed on your machine too.
 - **Mac**: `brew install tesseract`
 - **Linux (Ubuntu/Debian)**: `sudo apt install tesseract-ocr`
 
-## 3. Get an API key
+## 3. Get a free Gemini API key
 
-This app uses Claude (Anthropic) to expand the text. Get a free-tier key at
-https://console.anthropic.com/ (sign up → API Keys → Create Key).
+1. Go to https://aistudio.google.com/apikey
+2. Sign in with a Google account
+3. Click "Create API key" — no credit card required
 
 Then set it as an environment variable:
 
 **Mac/Linux:**
 ```bash
-export ANTHROPIC_API_KEY="your-key-here"
+export GEMINI_API_KEY="your-key-here"
 ```
 
 **Windows (PowerShell):**
 ```powershell
-$env:ANTHROPIC_API_KEY="your-key-here"
+$env:GEMINI_API_KEY="your-key-here"
 ```
 
 (Do this in the same terminal you'll run the app from, or add it to your
@@ -58,13 +62,18 @@ It'll open in your browser automatically, usually at http://localhost:8501
 
 ## What's built
 
-- [x] Image upload → OCR → AI-expanded content
-- [x] Auto-generate flowcharts/diagrams (Mermaid syntax + mermaid.js)
+- [x] Image upload → OCR → AI-expanded content, with an auto-generated
+      diagram shown right alongside it
 - [x] Text-to-speech for passages, with "meaning/motive" side-notes
 - [x] Daily usage cap to protect your API key from being drained
+- [x] Optional password protection (see below)
 - [ ] Full-book upload (currently works on pasted passages, not entire PDFs)
-- [ ] Deploy for free (see deployment steps below)
-- [ ] Longer-term sustainable free-for-students cost model
+
+## Password protection
+
+If you deploy this publicly and only want people with the password to use
+it, set an `APP_PASSWORD` secret (see deployment steps below). If you skip
+it, the app is open to anyone with the link.
 
 ## Deploying for free (Streamlit Community Cloud)
 
@@ -75,20 +84,20 @@ It'll open in your browser automatically, usually at http://localhost:8501
    installs itself from `packages.txt`.
 4. In the app's Settings → Secrets, add:
    ```
-   ANTHROPIC_API_KEY = "your-key-here"
+   GEMINI_API_KEY = "your-key-here"
    APP_PASSWORD = "choose-any-password"
    ```
-   Never commit your real key to GitHub — secrets keep it private. If you
-   skip `APP_PASSWORD`, the app is open to anyone with the link.
+   Never commit your real key to GitHub — secrets keep it private.
 5. You'll get a live link like `yourname-studyboost.streamlit.app` — share
    that with friends and put it on your resume next to the GitHub link.
 
 ## Notes for you as a beginner
 
-- All the "AI" logic lives in the `expand_content()` function in `app.py` —
-  that's the prompt sent to Claude. Tweak the wording there to change how
-  explanations are written (more examples, simpler language, exam-focused,
-  etc.) without touching any other code.
+- All the "AI" logic lives in `ask_gemini()` and the prompt functions in
+  `app.py` — tweak the wording there to change how explanations or diagrams
+  are generated, without touching anything else.
 - `extract_text_from_image()` is where OCR happens. If OCR quality is poor
   on handwritten notes, that's a known Tesseract limitation — it's much
   better at printed text. Handwriting OCR is a good "phase 2" upgrade.
+- Gemini's free tier has rate limits (requests per minute/day) — if you or
+  friends hit a rate-limit error, just wait a minute and try again.
