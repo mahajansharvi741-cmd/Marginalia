@@ -101,6 +101,9 @@ def friendly_error(e: Exception) -> str:
             "and try again."
         )
     return f"Something went wrong: {error_str}"
+
+
+def check_password() -> bool:
     """Simple password gate. Set APP_PASSWORD as an env var or Streamlit secret."""
     correct_password = os.environ.get("APP_PASSWORD") or st.secrets.get("APP_PASSWORD", None)
 
