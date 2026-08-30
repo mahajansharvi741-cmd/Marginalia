@@ -35,128 +35,163 @@ st.set_page_config(page_title="StudyBoost", page_icon="📚", layout="centered")
 
 CUSTOM_CSS = """
 <style>
-@import url('https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,600;9..144,700&family=IBM+Plex+Sans:wght@400;500;600;700&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Quicksand:wght@500;600;700&family=Poppins:wght@400;500;600&display=swap');
 
 :root {
-    --ink: #1E2A3A;
-    --ink-soft: #4A5A70;
-    --paper: #FBF8F2;
-    --marigold: #E29332;
-    --marigold-dark: #B5701D;
-    --sage: #6E8B6A;
-    --sage-soft: #E6EDE3;
+    --ink: #3D3358;
+    --ink-soft: #6B6182;
+    --paper: #FFF9F5;
+    --pink: #FF6B81;
+    --pink-dark: #E85570;
+    --purple: #A78BFA;
+    --mint: #4ECDC4;
+    --yellow: #FFD93D;
+    --card-bg: #FFFFFF;
 }
 
 html, body, [class*="css"] {
-    font-family: 'IBM Plex Sans', sans-serif;
+    font-family: 'Poppins', sans-serif;
 }
 
-/* Main app background */
+/* Main app background — soft pastel */
 .stApp {
-    background: var(--paper);
+    background: linear-gradient(180deg, #FFF9F5 0%, #FDF4FF 100%);
 }
 
-/* Headings use the display serif */
+/* Headings use the bubbly rounded font */
 h1, h2, h3 {
-    font-family: 'Fraunces', serif !important;
+    font-family: 'Quicksand', sans-serif !important;
     color: var(--ink) !important;
     letter-spacing: -0.01em;
 }
 
 h1 {
-    font-weight: 600 !important;
+    font-weight: 700 !important;
 }
 
-/* Hero banner for the title */
+/* Hero banner — playful gradient */
 .hero-banner {
-    background: var(--ink);
-    color: var(--paper);
-    padding: 28px 32px;
-    border-radius: 14px;
-    margin-bottom: 28px;
+    background: linear-gradient(120deg, var(--purple) 0%, var(--pink) 100%);
+    color: white;
+    padding: 32px 32px;
+    border-radius: 24px;
+    margin-bottom: 26px;
+    box-shadow: 0 8px 24px rgba(167, 139, 250, 0.25);
 }
 .hero-banner h1 {
-    color: var(--paper) !important;
+    color: white !important;
     margin: 0 0 6px 0 !important;
-    font-size: 32px !important;
+    font-size: 34px !important;
 }
 .hero-banner p {
-    color: #C7CEDA;
+    color: rgba(255,255,255,0.9);
     margin: 0;
     font-size: 15px;
 }
 
+/* Feature cards */
+.feature-card {
+    background: var(--card-bg);
+    border-radius: 20px;
+    padding: 22px;
+    box-shadow: 0 4px 16px rgba(167, 139, 250, 0.12);
+    border: 2px solid #F3E8FF;
+}
+
 /* Tabs styling */
 .stTabs [data-baseweb="tab-list"] {
-    gap: 4px;
-    background: #F0EBE0;
+    gap: 6px;
+    background: #F3E8FF;
     padding: 6px;
-    border-radius: 10px;
+    border-radius: 16px;
 }
 .stTabs [data-baseweb="tab"] {
     height: 42px;
-    border-radius: 8px;
+    border-radius: 12px;
     font-weight: 600;
     color: var(--ink-soft);
 }
 .stTabs [aria-selected="true"] {
-    background: var(--paper) !important;
-    color: var(--ink) !important;
-    box-shadow: 0 1px 4px rgba(0,0,0,0.08);
+    background: white !important;
+    color: var(--pink-dark) !important;
+    box-shadow: 0 2px 8px rgba(167, 139, 250, 0.2);
 }
 
-/* Buttons */
+/* Buttons — rounded pill shape, playful */
 .stButton button {
-    background: var(--marigold) !important;
+    background: linear-gradient(120deg, var(--pink) 0%, var(--purple) 100%) !important;
     color: white !important;
     border: none !important;
-    border-radius: 8px !important;
+    border-radius: 50px !important;
     font-weight: 600 !important;
-    padding: 10px 20px !important;
-    transition: background 0.2s !important;
+    font-family: 'Quicksand', sans-serif !important;
+    padding: 11px 26px !important;
+    transition: transform 0.15s, box-shadow 0.2s !important;
+    box-shadow: 0 4px 12px rgba(255, 107, 129, 0.3) !important;
 }
 .stButton button:hover {
-    background: var(--marigold-dark) !important;
+    transform: translateY(-2px) !important;
+    box-shadow: 0 6px 18px rgba(255, 107, 129, 0.4) !important;
 }
 
-/* Radio buttons (marks selector) styled like pill tabs */
+/* Radio buttons (marks selector, upload method) */
 .stRadio [role="radiogroup"] {
     gap: 8px;
+}
+.stRadio [role="radiogroup"] label {
+    background: white;
+    border-radius: 50px;
+    padding: 6px 14px !important;
+    border: 2px solid #F3E8FF;
 }
 
 /* File uploader */
 [data-testid="stFileUploaderDropzone"] {
-    background: #FFFEFB !important;
-    border: 2px dashed #C9BFA5 !important;
-    border-radius: 10px !important;
+    background: #FFFDFB !important;
+    border: 3px dashed var(--purple) !important;
+    border-radius: 20px !important;
+}
+
+/* Camera input */
+[data-testid="stCameraInput"] {
+    border-radius: 20px !important;
+    overflow: hidden;
 }
 
 /* Expanders */
 .streamlit-expanderHeader {
-    background: var(--sage-soft) !important;
-    border-radius: 8px !important;
+    background: #E8FBF9 !important;
+    border-radius: 14px !important;
     font-weight: 600 !important;
-    color: #3E5A3A !important;
+    color: #2A8A82 !important;
 }
 
 /* Info/success/warning boxes */
 div[data-testid="stAlert"] {
-    border-radius: 10px;
+    border-radius: 16px;
 }
 
 /* Captions */
 .stCaption, [data-testid="stCaptionContainer"] {
     color: var(--ink-soft) !important;
 }
+
 /* Sidebar */
 [data-testid="stSidebar"] {
-    background: #F3EFE4 !important;
-    border-right: 1px solid #E3DBC7;
+    background: linear-gradient(180deg, #FDF4FF 0%, #FFF9F5 100%) !important;
+    border-right: none;
 }
 [data-testid="stSidebar"] .stRadio [role="radiogroup"] label {
-    padding: 8px 10px;
-    border-radius: 8px;
-    margin-bottom: 2px;
+    padding: 10px 14px;
+    border-radius: 14px;
+    margin-bottom: 4px;
+    background: white;
+}
+
+/* Progress bar */
+.stProgress > div > div {
+    background: linear-gradient(90deg, var(--mint), var(--purple)) !important;
+    border-radius: 10px;
 }
 </style>
 """
@@ -260,7 +295,7 @@ def extract_text_from_image(image: Image.Image) -> str:
     return pytesseract.image_to_string(image)
 
 
-def expand_content(raw_text: str, marks: int) -> str:
+def expand_content(raw_text: str, marks: int, language: str = "English", style: str = "Paragraph") -> str:
     # Guidance scales roughly the way Indian university exam answers do —
     # more marks means more depth, structure, and coverage, not just length
     # for its own sake.
@@ -296,29 +331,58 @@ def expand_content(raw_text: str, marks: int) -> str:
         ),
     }[marks]
 
+    if language == "Hinglish":
+        language_instruction = (
+            "Write the entire answer in Hinglish — informal, natural "
+            "Hindi-English mixed language, written in Roman/English script "
+            "(the way Indian students actually text and speak), while still "
+            "keeping it clear and exam-appropriate. Keep technical terms in "
+            "English where that's how students normally use them."
+        )
+    else:
+        language_instruction = "Write the entire answer in clear, simple English."
+
+    if style == "Brainstorm/Points":
+        style_instruction = (
+            "Structure this as a BRAINSTORM-STYLE answer, not full flowing "
+            "paragraphs: use short bullet points and sub-points organized "
+            "around key concepts, almost like a mind-map written as text. "
+            "**Bold every important keyword or term** so they stand out at a "
+            "glance. Group related points under short headings. Keep each "
+            "bullet concise (1-2 lines) rather than long sentences — this "
+            "should be fast to scan and easy to revise from, while still "
+            "meeting the length/depth requirement below."
+        )
+    else:
+        style_instruction = (
+            "Structure this as a normal detailed exam answer with flowing "
+            "paragraphs organized under clear headings, using **bold** only "
+            "for key terms and definitions."
+        )
+
     prompt = f"""You are an expert exam-answer writing tutor for Indian
-school/college students. Below is raw text extracted (via OCR) from a
-photo of a student's notes or textbook page. It may contain OCR errors —
-correct them by inferring the intended meaning.
+school/college students. Below is either raw text extracted (via OCR) from
+a photo of a student's notes/textbook page, OR a question/topic the student
+typed directly. If it looks like OCR text, correct obvious errors by
+inferring intended meaning.
 
 Write a complete, well-structured exam answer based on this content, as if
 answering a {marks}-mark question on this topic.
 
 Length and depth required: {guidance}
 
-Formatting rules:
+Language: {language_instruction}
+
+Format/style: {style_instruction}
+
+Additional formatting rules:
 - Use clear markdown headings and sub-headings to organize the answer.
-- Use bullet points or numbered lists where it improves clarity.
-- Use **bold** for key terms and definitions.
-- Write in simple, clear language a student can actually understand and
-  reuse in their own words — avoid overly complex jargon without explaining
-  it first.
 - Where a diagram would help (a process, cycle, architecture, or
   classification), add a line like "*(Diagram: short description of what
   it should show)*" at that point — a real diagram will be generated
   separately and shown alongside this answer.
 
-Raw extracted text:
+Content / question:
 ---
 {raw_text}
 ---
@@ -362,8 +426,8 @@ Notes:
 def render_notes_expander():
     st.subheader("📝 Notes Expander")
     st.caption(
-        "Upload a photo of your notes or textbook page — get a full exam-"
-        "style answer written for you, with diagrams included."
+        "Upload a photo, snap one, or type a question directly — get a full "
+        "exam-style answer written for you, with diagrams included."
     )
 
     marks = st.radio(
@@ -374,61 +438,101 @@ def render_notes_expander():
         help="Choose how long/detailed the answer should be, matching typical exam mark weightage.",
     )
 
-    uploaded_file = st.file_uploader(
-        "Upload an image", type=["png", "jpg", "jpeg"], key="notes_upload"
+    answer_language = st.radio(
+        "Answer language",
+        ["English", "Hinglish"],
+        horizontal=True,
+        help="Hinglish = informal Hindi-English mix, written in Roman script.",
     )
 
-    if uploaded_file is not None:
-        image = Image.open(uploaded_file)
-        st.image(image, caption="Uploaded image (click to enlarge)", width=220)
+    answer_style = st.radio(
+        "Answer style",
+        ["Paragraph", "Brainstorm/Points"],
+        horizontal=True,
+        help="Brainstorm/Points = short bulleted, mind-map style answer with bolded keywords, instead of full paragraphs.",
+    )
 
-        if usage_ok() and st.button("✨ Write my answer", key="expand_btn"):
+    input_method = st.radio(
+        "How do you want to add your content?",
+        ["📁 Upload from gallery", "📷 Take a photo", "⌨️ Type a question"],
+        horizontal=True,
+        key="notes_input_method",
+    )
+
+    raw_text = None
+    image = None
+
+    if input_method == "⌨️ Type a question":
+        typed_question = st.text_area(
+            "Type your question or topic",
+            placeholder="e.g. Explain the process of photosynthesis",
+            height=120,
+        )
+        if typed_question.strip():
+            raw_text = typed_question.strip()
+    else:
+        if input_method == "📁 Upload from gallery":
+            uploaded_file = st.file_uploader(
+                "Upload an image", type=["png", "jpg", "jpeg"], key="notes_upload"
+            )
+        else:
+            uploaded_file = st.camera_input("Take a photo of your notes", key="notes_camera")
+
+        if uploaded_file is not None:
+            image = Image.open(uploaded_file)
+            st.image(image, caption="Your notes (click to enlarge)", width=220)
+
+    ready = raw_text is not None or image is not None
+
+    if ready and usage_ok() and st.button("✨ Write my answer", key="expand_btn"):
+        if image is not None:
             with st.spinner("Reading text from image..."):
                 raw_text = extract_text_from_image(image)
-
             if not raw_text.strip():
                 st.error("Couldn't detect any text in this image. Try a clearer photo.")
+                raw_text = None
             else:
                 with st.expander("Raw extracted text (OCR output)"):
                     st.write(raw_text)
 
-                expanded = None
-                if client is not None:
-                    with st.spinner(f"Writing your {marks}-mark answer..."):
-                        try:
-                            expanded = expand_content(raw_text, marks)
-                            increment_usage_count()
-                            st.subheader(f"📖 {marks}-Mark Answer")
-                            st.markdown(expanded)
-                        except Exception as e:
-                            st.error(friendly_error(e))
+        if raw_text:
+            expanded = None
+            if client is not None:
+                with st.spinner(f"Writing your {marks}-mark answer..."):
+                    try:
+                        expanded = expand_content(raw_text, marks, answer_language, answer_style)
+                        increment_usage_count()
+                        st.subheader(f"📖 {marks}-Mark Answer")
+                        st.markdown(expanded)
+                    except Exception as e:
+                        st.error(friendly_error(e))
 
-                    if expanded:
-                        # More marks -> more diagrams, since a 20-mark answer
-                        # typically covers several distinct sub-topics.
-                        num_diagrams = 1 if marks <= 10 else 2
-                        for i in range(num_diagrams):
-                            with st.spinner(f"Drawing diagram {i + 1} of {num_diagrams}..."):
-                                try:
-                                    focus = (
-                                        "the main process/cycle described"
-                                        if i == 0
-                                        else "a secondary concept, classification, or comparison from the notes"
-                                    )
-                                    diagram_code = generate_flowchart(raw_text, focus_hint=focus)
-                                    increment_usage_count()
-                                    st.subheader(f"📊 Diagram {i + 1}")
-                                    components.html(
-                                        MERMAID_HTML_TEMPLATE.format(diagram=diagram_code),
-                                        height=420,
-                                        scrolling=True,
-                                    )
-                                    with st.expander(f"View diagram {i + 1} code (Mermaid syntax)"):
-                                        st.code(diagram_code, language="text")
-                                except Exception as e:
-                                    st.error(f"Diagram generation failed. {friendly_error(e)}")
-                else:
-                    st.info("Add your Gemini API key to see the AI-written answer.")
+                if expanded:
+                    # More marks -> more diagrams, since a 20-mark answer
+                    # typically covers several distinct sub-topics.
+                    num_diagrams = 1 if marks <= 10 else 2
+                    for i in range(num_diagrams):
+                        with st.spinner(f"Drawing diagram {i + 1} of {num_diagrams}..."):
+                            try:
+                                focus = (
+                                    "the main process/cycle described"
+                                    if i == 0
+                                    else "a secondary concept, classification, or comparison from the notes"
+                                )
+                                diagram_code = generate_flowchart(raw_text, focus_hint=focus)
+                                increment_usage_count()
+                                st.subheader(f"📊 Diagram {i + 1}")
+                                components.html(
+                                    MERMAID_HTML_TEMPLATE.format(diagram=diagram_code),
+                                    height=420,
+                                    scrolling=True,
+                                )
+                                with st.expander(f"View diagram {i + 1} code (Mermaid syntax)"):
+                                    st.code(diagram_code, language="text")
+                            except Exception as e:
+                                st.error(f"Diagram generation failed. {friendly_error(e)}")
+            else:
+                st.info("Add your Gemini API key to see the AI-written answer.")
 
 
 # ---------------- FEATURE 2: BOOK READER (image -> TTS + MEANING NOTES) ----------------
@@ -518,14 +622,25 @@ def render_book_reader():
             "so pronunciation may sound slightly off."
         )
 
-    uploaded_file = st.file_uploader(
-        "Upload an image of a book/story page", type=["png", "jpg", "jpeg"], key="book_upload"
+    input_method = st.radio(
+        "How do you want to add the page?",
+        ["📁 Upload from gallery", "📷 Take a photo"],
+        horizontal=True,
+        key="book_input_method",
     )
+
+    if input_method == "📁 Upload from gallery":
+        uploaded_file = st.file_uploader(
+            "Upload an image of a book/story page", type=["png", "jpg", "jpeg"], key="book_upload"
+        )
+    else:
+        uploaded_file = st.camera_input("Take a photo of the page", key="book_camera")
+
     include_notes = st.checkbox("Also explain the meaning/motive behind it", value=True)
 
     if uploaded_file is not None:
         image = Image.open(uploaded_file)
-        st.image(image, caption="Uploaded page (click to enlarge)", width=220)
+        st.image(image, caption="Your page (click to enlarge)", width=220)
 
         if usage_ok() and st.button("🔊 Read this page"):
             with st.spinner("Reading text from image..."):
@@ -624,11 +739,11 @@ if page == "🏠 Home":
     with col1:
         st.markdown(
             """
-            <div style="background:white; border:1px solid #E9E2CF; border-radius:12px; padding:20px; height:210px;">
-                <div style="font-size:26px;">📝</div>
-                <div style="font-family:'Fraunces',serif; font-weight:600; font-size:18px; margin:8px 0 6px;">Notes Expander</div>
-                <div style="font-size:13.5px; color:#4A5A70; line-height:1.5;">
-                    Upload a photo of your notes or textbook page. Pick a mark
+            <div class="feature-card" style="height:210px;">
+                <div style="font-size:28px;">📝</div>
+                <div style="font-family:'Quicksand',sans-serif; font-weight:700; font-size:18px; margin:8px 0 6px; color:#3D3358;">Notes Expander</div>
+                <div style="font-size:13.5px; color:#6B6182; line-height:1.5;">
+                    Upload or snap a photo of your notes. Pick a mark
                     weightage (5/10/15/20) and get a full written exam answer,
                     with diagrams included.
                 </div>
@@ -643,13 +758,13 @@ if page == "🏠 Home":
     with col2:
         st.markdown(
             """
-            <div style="background:white; border:1px solid #E9E2CF; border-radius:12px; padding:20px; height:210px;">
-                <div style="font-size:26px;">🎧</div>
-                <div style="font-family:'Fraunces',serif; font-weight:600; font-size:18px; margin:8px 0 6px;">Book Reader</div>
-                <div style="font-size:13.5px; color:#4A5A70; line-height:1.5;">
-                    Upload a photo of a book/story page. Hear it read aloud in
-                    English, Hindi, Punjabi, or Hinglish, with notes on the
-                    meaning behind it.
+            <div class="feature-card" style="height:210px;">
+                <div style="font-size:28px;">🎧</div>
+                <div style="font-family:'Quicksand',sans-serif; font-weight:700; font-size:18px; margin:8px 0 6px; color:#3D3358;">Book Reader</div>
+                <div style="font-size:13.5px; color:#6B6182; line-height:1.5;">
+                    Upload or snap a photo of a book/story page. Hear it read
+                    aloud in English, Hindi, Punjabi, or Hinglish, with notes
+                    on the meaning behind it.
                 </div>
             </div>
             """,
