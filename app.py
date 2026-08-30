@@ -1,5 +1,5 @@
 """
-StudyBoost — a free AI study companion for school/college students.
+Marginalia — a free AI study companion for school/college students.
 
 Features:
 1. Notes Expander — upload a photo of notes/book page -> OCR -> detailed AI
@@ -31,7 +31,7 @@ from google import genai
 from gtts import gTTS
 
 # ---------------- CONFIG ----------------
-st.set_page_config(page_title="StudyBoost", page_icon="📚", layout="centered")
+st.set_page_config(page_title="Marginalia", page_icon="📚", layout="centered")
 
 CUSTOM_CSS = """
 <style>
@@ -697,7 +697,7 @@ with st.sidebar:
         """
         <div style="padding: 4px 0 18px 0;">
             <div style="font-family:'Fraunces',serif; font-weight:600; font-size:22px; color:#1E2A3A;">
-                📚 StudyBoost
+                📚 Marginalia
             </div>
             <div style="font-size:12.5px; color:#8A8375; margin-top:2px;">
                 Free AI study companion
@@ -728,7 +728,7 @@ if page == "🏠 Home":
     st.markdown(
         """
         <div class="hero-banner">
-            <h1>📚 StudyBoost</h1>
+            <h1>📚 Marginalia</h1>
             <p>Free AI study companion — notes explained with diagrams, books narrated.</p>
         </div>
         """,

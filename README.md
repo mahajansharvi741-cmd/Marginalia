@@ -1,4 +1,4 @@
-# 📚 StudyBoost
+# 📚 Marginalia
 
 **A free AI study companion for school/college students** — turns photos of
 notes into exam-ready answers with auto-generated diagrams, and reads book
@@ -8,9 +8,11 @@ passages aloud in English, Hindi, Punjabi, or Hinglish with meaning notes.
 
 ## What it does
 
-- **Notes Expander** — upload a photo of notes or a textbook page, pick a
-  mark weightage (5/10/15/20), and get a full exam-style written answer in
-  clear, simple language, with 1-2 auto-generated flowchart diagrams to match.
+- **Notes Expander** — upload a photo, take one, or type a question/topic
+  directly. Pick a mark weightage (5/10/15/20), a language (English or
+  Hinglish), and a style (detailed paragraphs, or brainstorm-style bulleted
+  points with bolded keywords) — get a full exam-style written answer with
+  1-2 auto-generated flowchart diagrams to match.
 - **Book Reader** — upload a photo of a book/story page and hear it read
   aloud in English, Hindi, Punjabi, or Hinglish, with AI notes on the
   meaning or motive behind key lines, in the same language.
@@ -18,7 +20,7 @@ passages aloud in English, Hindi, Punjabi, or Hinglish with meaning notes.
 ## Why I built it
 
 NCERT and textbook content is often too brief or dense for students to
-actually learn from independently. StudyBoost turns a photo of any page
+actually learn from independently. Marginalia turns a photo of any page
 into a properly explained, exam-ready answer — free, so cost isn't a
 barrier for students.
 
