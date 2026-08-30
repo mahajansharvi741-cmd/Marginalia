@@ -148,6 +148,16 @@ div[data-testid="stAlert"] {
 .stCaption, [data-testid="stCaptionContainer"] {
     color: var(--ink-soft) !important;
 }
+/* Sidebar */
+[data-testid="stSidebar"] {
+    background: #F3EFE4 !important;
+    border-right: 1px solid #E3DBC7;
+}
+[data-testid="stSidebar"] .stRadio [role="radiogroup"] label {
+    padding: 8px 10px;
+    border-radius: 8px;
+    margin-bottom: 2px;
+}
 </style>
 """
 
@@ -564,18 +574,33 @@ def render_book_reader():
 
 # ---------------- MAIN APP ----------------
 
-st.markdown(
-    """
-    <div class="hero-banner">
-        <h1>📚 StudyBoost</h1>
-        <p>Free AI study companion — notes explained with diagrams, books narrated.</p>
-    </div>
-    """,
-    unsafe_allow_html=True,
-)
-
 if not check_password():
     st.stop()
+
+with st.sidebar:
+    st.markdown(
+        """
+        <div style="padding: 4px 0 18px 0;">
+            <div style="font-family:'Fraunces',serif; font-weight:600; font-size:22px; color:#1E2A3A;">
+                📚 StudyBoost
+            </div>
+            <div style="font-size:12.5px; color:#8A8375; margin-top:2px;">
+                Free AI study companion
+            </div>
+        </div>
+        """,
+        unsafe_allow_html=True,
+    )
+
+    page = st.radio(
+        "Navigate",
+        ["🏠 Home", "📝 Expand Notes", "🎧 Book Reader"],
+        label_visibility="collapsed",
+    )
+
+    st.divider()
+    st.caption(f"Usage today: {get_usage_count()}/{DAILY_LIMIT}")
+    st.progress(min(get_usage_count() / DAILY_LIMIT, 1.0))
 
 if client is None:
     st.warning(
@@ -584,13 +609,61 @@ if client is None:
         "https://aistudio.google.com/apikey"
     )
 
-tab1, tab2 = st.tabs(["📝 Expand Notes", "🎧 Book Reader"])
+if page == "🏠 Home":
+    st.markdown(
+        """
+        <div class="hero-banner">
+            <h1>📚 StudyBoost</h1>
+            <p>Free AI study companion — notes explained with diagrams, books narrated.</p>
+        </div>
+        """,
+        unsafe_allow_html=True,
+    )
 
-with tab1:
+    col1, col2 = st.columns(2)
+    with col1:
+        st.markdown(
+            """
+            <div style="background:white; border:1px solid #E9E2CF; border-radius:12px; padding:20px; height:210px;">
+                <div style="font-size:26px;">📝</div>
+                <div style="font-family:'Fraunces',serif; font-weight:600; font-size:18px; margin:8px 0 6px;">Notes Expander</div>
+                <div style="font-size:13.5px; color:#4A5A70; line-height:1.5;">
+                    Upload a photo of your notes or textbook page. Pick a mark
+                    weightage (5/10/15/20) and get a full written exam answer,
+                    with diagrams included.
+                </div>
+            </div>
+            """,
+            unsafe_allow_html=True,
+        )
+        if st.button("Go to Notes Expander →", use_container_width=True):
+            st.session_state["nav_override"] = "📝 Expand Notes"
+            st.rerun()
+
+    with col2:
+        st.markdown(
+            """
+            <div style="background:white; border:1px solid #E9E2CF; border-radius:12px; padding:20px; height:210px;">
+                <div style="font-size:26px;">🎧</div>
+                <div style="font-family:'Fraunces',serif; font-weight:600; font-size:18px; margin:8px 0 6px;">Book Reader</div>
+                <div style="font-size:13.5px; color:#4A5A70; line-height:1.5;">
+                    Upload a photo of a book/story page. Hear it read aloud in
+                    English, Hindi, Punjabi, or Hinglish, with notes on the
+                    meaning behind it.
+                </div>
+            </div>
+            """,
+            unsafe_allow_html=True,
+        )
+        if st.button("Go to Book Reader →", use_container_width=True):
+            st.session_state["nav_override"] = "🎧 Book Reader"
+            st.rerun()
+
+    st.divider()
+    st.caption("Made by a BCA student, for students. Free to use.")
+
+elif page == "📝 Expand Notes":
     render_notes_expander()
 
-with tab2:
+elif page == "🎧 Book Reader":
     render_book_reader()
-
-st.divider()
-st.caption("Made by a BCA student, for students. Free to use.")
