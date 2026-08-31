@@ -1,5 +1,0 @@
-streamlit
-pytesseract
-pillow
-google-genai
-gtts

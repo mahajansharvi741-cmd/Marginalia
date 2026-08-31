@@ -105,6 +105,12 @@ Opens at http://localhost:8501
 
 ## Notes
 
+- Each visitor gets their own usage cap (15 AI actions per browser session)
+  instead of one shared counter across everyone — so one heavy user can't
+  use up someone else's quota. This resets if a person reloads the page,
+  since there's no login system tracking individual people persistently.
+  A real, unresetable per-person limit would need actual user accounts —
+  a bigger feature for later if this ever needs it.
 - A 20-mark answer uses more AI calls (1 for the answer + 2 for diagrams)
   than a 5-mark one, so it counts more against Gemini's free-tier rate
   limits — a brief wait usually resolves any rate-limit error.

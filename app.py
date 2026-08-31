@@ -242,8 +242,7 @@ div[data-testid="stAlert"] {{
 
 st.markdown(CUSTOM_CSS, unsafe_allow_html=True)
 
-DAILY_LIMIT = 50
-USAGE_FILE = Path("usage_count.json")
+SESSION_LIMIT = 15
 
 GEMINI_API_KEY = os.environ.get("GEMINI_API_KEY") or st.secrets.get("GEMINI_API_KEY", None)
 
@@ -253,23 +252,25 @@ if GEMINI_API_KEY:
 
 
 def get_usage_count() -> int:
-    if USAGE_FILE.exists():
-        return json.loads(USAGE_FILE.read_text()).get("count", 0)
-    return 0
+    # Per-browser-session count, not shared across visitors — each person
+    # who opens the app gets their own separate count, so one heavy user
+    # can't use up everyone else's quota.
+    return st.session_state.get("session_usage_count", 0)
 
 
 def increment_usage_count():
     count = get_usage_count() + 1
-    USAGE_FILE.write_text(json.dumps({"count": count}))
+    st.session_state["session_usage_count"] = count
     return count
 
 
 def usage_ok() -> bool:
-    if get_usage_count() >= DAILY_LIMIT:
+    if get_usage_count() >= SESSION_LIMIT:
         st.error(
-            "This demo has hit its usage cap for now (it's running on a free "
-            "personal API key). Please try again later, or run it locally "
-            "with your own key — see README.md."
+            "You've hit this session's usage limit (it's running on a free "
+            "personal API key, so each visitor gets a capped amount to keep "
+            "it fair for everyone). Reload the page to reset your count, or "
+            "run it locally with your own key — see README.md."
         )
         return False
     return True
@@ -836,6 +837,10 @@ def render_book_reader():
 if not check_password():
     st.stop()
 
+NAV_OPTIONS = ["🏠 Home", "📝 Expand Notes", "🎧 Book Reader"]
+if "current_page" not in st.session_state:
+    st.session_state["current_page"] = "🏠 Home"
+
 with st.sidebar:
     st.markdown(
         f"""
@@ -853,14 +858,15 @@ with st.sidebar:
 
     page = st.radio(
         "Navigate",
-        ["🏠 Home", "📝 Expand Notes", "🎧 Book Reader"],
+        NAV_OPTIONS,
+        key="current_page",
         label_visibility="collapsed",
     )
 
     st.divider()
     st.toggle("🌙 Dark mode", key="dark_mode")
-    st.caption(f"Usage today: {get_usage_count()}/{DAILY_LIMIT}")
-    st.progress(min(get_usage_count() / DAILY_LIMIT, 1.0))
+    st.caption(f"Usage this session: {get_usage_count()}/{SESSION_LIMIT}")
+    st.progress(min(get_usage_count() / SESSION_LIMIT, 1.0))
 
 if client is None:
     st.warning(
@@ -895,9 +901,11 @@ if page == "🏠 Home":
             """,
             unsafe_allow_html=True,
         )
-        if st.button("Go to Notes Expander →", use_container_width=True):
-            st.session_state["nav_override"] = "📝 Expand Notes"
-            st.rerun()
+        st.button(
+            "Go to Notes Expander →",
+            use_container_width=True,
+            on_click=lambda: st.session_state.update(current_page="📝 Expand Notes"),
+        )
 
     with col2:
         st.markdown(
@@ -914,9 +922,11 @@ if page == "🏠 Home":
             """,
             unsafe_allow_html=True,
         )
-        if st.button("Go to Book Reader →", use_container_width=True):
-            st.session_state["nav_override"] = "🎧 Book Reader"
-            st.rerun()
+        st.button(
+            "Go to Book Reader →",
+            use_container_width=True,
+            on_click=lambda: st.session_state.update(current_page="🎧 Book Reader"),
+        )
 
     st.divider()
     st.caption("Made by a BCA student, for students. Free to use.")
