@@ -30,8 +30,10 @@ barrier for students.
 ## Tech stack
 
 - **Python** + **Streamlit** — app framework and UI
-- **Google Gemini API** (free tier) — content generation, translation
-- **Tesseract OCR** (`pytesseract`) — text extraction from images
+- **Google Gemini API** (free tier) — content generation, translation, and
+  vision-based text extraction from images (including handwriting)
+- **Tesseract OCR** (`pytesseract`) — offline fallback for text extraction
+  if no Gemini API key is set
 - **Mermaid.js** — auto-generated flowchart diagrams
 - **gTTS** — text-to-speech in multiple languages
 - Deployed on **Streamlit Community Cloud**
@@ -97,6 +99,41 @@ Opens at http://localhost:8501
    ```
 5. You'll get a live link like `yourname-studyboost.streamlit.app`.
 
+## Setting up Google Login (optional)
+
+By default the app uses simple password protection (`APP_PASSWORD` above).
+If you'd rather let people sign in with their Google account instead, set
+this up — it's free but requires creating your own Google OAuth credentials.
+
+1. Go to https://console.cloud.google.com/, create a new project (or use an
+   existing one).
+2. Go to **APIs & Services → OAuth consent screen**. Choose "External",
+   fill in the basic app info (name, your email), and save. You don't need
+   to submit for verification for personal/small-group use.
+3. Go to **APIs & Services → Credentials → Create Credentials → OAuth
+   client ID**. Choose "Web application".
+4. Under **Authorized redirect URIs**, add:
+   ```
+   https://YOUR-APP-NAME.streamlit.app/oauth2callback
+   ```
+   (use your actual live app URL — and add `http://localhost:8501/oauth2callback`
+   too if you also want Google login to work locally)
+5. Click Create — you'll get a **Client ID** and **Client Secret**. Copy both.
+6. In Streamlit Cloud → Settings → Secrets, add:
+   ```
+   [auth]
+   redirect_uri = "https://YOUR-APP-NAME.streamlit.app/oauth2callback"
+   cookie_secret = "any-random-long-string-you-make-up"
+
+   [auth.google]
+   client_id = "your-client-id-here"
+   client_secret = "your-client-secret-here"
+   server_metadata_url = "https://accounts.google.com/.well-known/openid-configuration"
+   ```
+7. Save — the app will now show a "Log in with Google" button instead of
+   the password field. (If these secrets aren't set, the app automatically
+   falls back to the password gate, so nothing breaks in the meantime.)
+
 ## Roadmap
 
 - [ ] Full-book upload (currently works page-by-page)
@@ -116,3 +153,6 @@ Opens at http://localhost:8501
   limits — a brief wait usually resolves any rate-limit error.
 - Hinglish text is generated accurately, but there's no dedicated Hinglish
   TTS voice, so its audio uses the closest available voice.
+- Text extraction from images now uses Gemini's vision capability (much
+  better at handwriting than the earlier Tesseract-only version), which
+  means it counts as one more AI action against the session usage cap.

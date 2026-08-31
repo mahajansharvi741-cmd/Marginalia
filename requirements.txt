@@ -3,3 +3,4 @@ pytesseract
 pillow
 google-genai
 gtts
+Authlib

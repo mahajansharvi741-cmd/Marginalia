@@ -334,9 +334,66 @@ def check_password() -> bool:
     return False
 
 
+def google_login_configured() -> bool:
+    """True only once Google OAuth secrets have actually been set up (see README)."""
+    try:
+        return bool(st.secrets.get("auth", {}).get("google", {}).get("client_id"))
+    except Exception:
+        return False
+
+
+def check_auth() -> bool:
+    """
+    Gate access to the app. Uses Google login if it's been configured
+    (see README's 'Setting up Google Login' section); otherwise falls back
+    to the simple password gate above, so the app still works before you've
+    set up Google OAuth.
+    """
+    if not google_login_configured():
+        return check_password()
+
+    if st.user.is_logged_in:
+        return True
+
+    st.markdown(
+        """
+        <div class="hero-banner">
+            <h1>📚 Marginalia</h1>
+            <p>Free AI study companion — sign in to continue.</p>
+        </div>
+        """,
+        unsafe_allow_html=True,
+    )
+    st.button("🔐 Log in with Google", on_click=st.login, args=("google",))
+    return False
+
+
 # ---------------- FEATURE 1: NOTES EXPANDER (+ built-in diagram) ----------------
 
 def extract_text_from_image(image: Image.Image) -> str:
+    """
+    Extract text from an image. Uses Gemini's vision capability as the
+    primary method — it reads handwriting far better than Tesseract, which
+    is only trained for printed text. Falls back to Tesseract if no API
+    key is configured (so this still works offline/without a key).
+    """
+    if client is not None:
+        try:
+            prompt = (
+                "Transcribe ALL text visible in this image completely and "
+                "exactly, including handwritten text if present. If any "
+                "handwriting is unclear, use context to make your best "
+                "reasonable interpretation rather than skipping it. Return "
+                "ONLY the transcribed text — no commentary, no markdown "
+                "formatting, no introductory phrases."
+            )
+            response = client.models.generate_content(
+                model="gemini-3.6-flash", contents=[prompt, image]
+            )
+            increment_usage_count()
+            return response.text
+        except Exception:
+            pass  # fall through to Tesseract below
     return pytesseract.image_to_string(image)
 
 
@@ -531,9 +588,9 @@ Notes:
 def render_notes_expander():
     st.subheader("📝 Notes Expander")
     st.caption(
-        "Upload a photo, snap one, or type a question directly — get a "
-        "clear explanation or a full exam-style answer, with diagrams "
-        "included. Works for theory, case-study, and math questions."
+        "Attach a photo and/or type your question — just like adding an "
+        "attachment in a chat. Get a clear explanation or a full exam-style "
+        "answer, with diagrams included."
     )
 
     marks = st.radio(
@@ -563,48 +620,59 @@ def render_notes_expander():
         help="Brainstorm/Points = short bulleted, mind-map style answer with bolded keywords, instead of full paragraphs.",
     )
 
-    input_method = st.radio(
-        "How do you want to add your content?",
-        ["📁 Upload from gallery", "📷 Take a photo", "⌨️ Type a question"],
+    st.markdown("**📎 Attach a photo (optional)**")
+    attach_method = st.radio(
+        "Attach a photo",
+        ["None", "📁 Upload from gallery", "📷 Take a photo"],
         horizontal=True,
-        key="notes_input_method",
+        label_visibility="collapsed",
+        key="notes_attach_method",
     )
 
-    raw_text = None
     image = None
-
-    if input_method == "⌨️ Type a question":
-        typed_question = st.text_area(
-            "Type your question or topic",
-            placeholder="e.g. Explain the process of photosynthesis, or solve: 2x + 5 = 15",
-            height=120,
+    if attach_method == "📁 Upload from gallery":
+        uploaded_file = st.file_uploader(
+            "Upload an image", type=["png", "jpg", "jpeg"], key="notes_upload"
         )
-        if typed_question.strip():
-            raw_text = typed_question.strip()
-    else:
-        if input_method == "📁 Upload from gallery":
-            uploaded_file = st.file_uploader(
-                "Upload an image", type=["png", "jpg", "jpeg"], key="notes_upload"
-            )
-        else:
-            uploaded_file = st.camera_input("Take a photo of your notes", key="notes_camera")
-
         if uploaded_file is not None:
             image = Image.open(uploaded_file)
-            st.image(image, caption="Your notes (click to enlarge)", width=220)
+    elif attach_method == "📷 Take a photo":
+        camera_file = st.camera_input("Take a photo of your notes", key="notes_camera")
+        if camera_file is not None:
+            image = Image.open(camera_file)
 
-    ready = raw_text is not None or image is not None
+    if image is not None:
+        st.image(image, caption="Attached (click to enlarge)", width=180)
+
+    typed_question = st.text_area(
+        "Type your question (optional if a photo is attached — required if not)",
+        placeholder="e.g. Explain the process of photosynthesis, solve: 2x + 5 = 15, or ask something specific about the attached photo",
+        height=110,
+    )
+    typed_question = typed_question.strip()
+
+    ready = image is not None or bool(typed_question)
 
     if ready and usage_ok() and st.button("✨ Write my answer", key="expand_btn"):
+        raw_text = None
+
         if image is not None:
             with st.spinner("Reading text from image..."):
-                raw_text = extract_text_from_image(image)
-            if not raw_text.strip():
+                ocr_text = extract_text_from_image(image)
+            if not ocr_text.strip():
                 st.error("Couldn't detect any text in this image. Try a clearer photo.")
-                raw_text = None
             else:
                 with st.expander("Raw extracted text (OCR output)"):
-                    st.write(raw_text)
+                    st.write(ocr_text)
+                if typed_question:
+                    raw_text = (
+                        f"{ocr_text}\n\n"
+                        f"Student's specific question about the above content: {typed_question}"
+                    )
+                else:
+                    raw_text = ocr_text
+        else:
+            raw_text = typed_question
 
         if raw_text:
             # Save this content so the follow-up question box below can use
@@ -834,7 +902,7 @@ def render_book_reader():
 
 # ---------------- MAIN APP ----------------
 
-if not check_password():
+if not check_auth():
     st.stop()
 
 NAV_OPTIONS = ["🏠 Home", "📝 Expand Notes", "🎧 Book Reader"]
@@ -867,6 +935,11 @@ with st.sidebar:
     st.toggle("🌙 Dark mode", key="dark_mode")
     st.caption(f"Usage this session: {get_usage_count()}/{SESSION_LIMIT}")
     st.progress(min(get_usage_count() / SESSION_LIMIT, 1.0))
+
+    if google_login_configured() and st.user.is_logged_in:
+        st.divider()
+        st.caption(f"👋 Signed in as {st.user.name}")
+        st.button("Log out", on_click=st.logout, use_container_width=True)
 
 if client is None:
     st.warning(
