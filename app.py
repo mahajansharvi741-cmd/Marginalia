@@ -16,9 +16,13 @@ HOW TO RUN:
 3. Get a free Gemini API key at https://aistudio.google.com/apikey
 4. Set it as GEMINI_API_KEY environment variable (or Streamlit secret)
 5. Run: streamlit run app.py
+
+Keep the `static/` and `.streamlit/` folders next to app.py — they make the
+app installable on phones ("Add to Home Screen").
 """
 
 import os
+import html
 import json
 import tempfile
 from pathlib import Path
@@ -31,7 +35,12 @@ from google import genai
 from gtts import gTTS
 
 # ---------------- CONFIG ----------------
-st.set_page_config(page_title="Marginalia", page_icon="📚", layout="centered")
+st.set_page_config(
+    page_title="Marginalia",
+    page_icon="📚",
+    layout="centered",
+    initial_sidebar_state="collapsed",
+)
 
 dark_mode = st.session_state.get("dark_mode", False)
 
@@ -237,10 +246,208 @@ div[data-testid="stAlert"] {{
     color: var(--ink) !important;
     border-radius: 12px !important;
 }}
+
+/* ================= Polish pass ================= */
+
+/* The zero-height iframe that injects the install tags shouldn't leave a gap */
+.element-container:has(iframe[height="0"]),
+[data-testid="stElementContainer"]:has(iframe[height="0"]) {{
+    position: absolute;
+    height: 0;
+    margin: 0;
+    overflow: hidden;
+}}
+
+/* Hide Streamlit's default chrome for a cleaner, app-like feel */
+#MainMenu, footer, [data-testid="stToolbar"], [data-testid="stDecoration"] {{
+    visibility: hidden;
+    height: 0;
+}}
+
+/* Button labels: the global `p`/`span` colour rule above was turning them
+   dark on the pink gradient, so force them white. */
+.stButton button p, .stButton button span, .stButton button div {{
+    color: white !important;
+}}
+.stButton button:disabled {{
+    opacity: 0.45 !important;
+    transform: none !important;
+    cursor: not-allowed !important;
+    box-shadow: none !important;
+}}
+
+/* Visible keyboard focus */
+.stButton button:focus-visible,
+.stTabs [data-baseweb="tab"]:focus-visible,
+.stRadio label:focus-within,
+.stTextInput input:focus-visible,
+.stTextArea textarea:focus-visible {{
+    outline: 3px solid #7C5CE0 !important;
+    outline-offset: 2px;
+}}
+
+/* Readable long-form answers */
+.stMarkdown p, .stMarkdown li {{
+    line-height: 1.7;
+}}
+.stMarkdown h2, .stMarkdown h3 {{
+    margin-top: 1.1em;
+}}
+
+/* Top navigation (replaces the sidebar radio so it works on phones) */
+.st-key-current_page [role="radiogroup"] {{
+    flex-wrap: wrap;
+    gap: 8px;
+    margin-bottom: 6px;
+}}
+.st-key-current_page label {{
+    cursor: pointer;
+    min-height: 44px;
+    padding: 8px 18px !important;
+    display: flex;
+    align-items: center;
+    font-family: 'Quicksand', sans-serif;
+    font-weight: 600;
+}}
+.st-key-current_page label > div:first-child {{
+    display: none;  /* hide the radio dot, show pills only */
+}}
+.st-key-current_page label:has(input:checked) {{
+    background: linear-gradient(120deg, var(--pink) 0%, var(--purple) 100%);
+    border-color: transparent !important;
+}}
+.st-key-current_page label:has(input:checked) p,
+.st-key-current_page label:has(input:checked) span {{
+    color: white !important;
+}}
+
+/* Option pills everywhere: wrap on small screens, comfortable tap size,
+   clear selected state */
+.stRadio [role="radiogroup"] {{
+    flex-wrap: wrap;
+}}
+.stRadio [role="radiogroup"] label {{
+    min-height: 40px;
+}}
+.stRadio [role="radiogroup"] label:has(input:checked) {{
+    border-color: var(--purple) !important;
+    box-shadow: 0 2px 8px rgba(167, 139, 250, 0.25);
+}}
+
+/* Result cards (answers, follow-ups, notes) */
+[class*="st-key-card-"] {{
+    background: var(--card-bg);
+    border: 2px solid {_card_border};
+    border-radius: 20px;
+    padding: 20px 22px;
+    box-shadow: 0 4px 16px rgba(167, 139, 250, 0.12);
+    margin: 10px 0 18px 0;
+}}
+
+/* Dropdowns / selects (rendered in a portal, so they ignored dark mode) */
+[data-baseweb="select"] > div {{
+    background: {_uploader_bg} !important;
+    border-radius: 12px !important;
+}}
+[data-baseweb="popover"] ul, [data-baseweb="menu"] {{
+    background: {_card_bg} !important;
+}}
+
+.feature-card {{
+    min-height: 200px;
+}}
+
+/* Hide Streamlit's "Press Ctrl+Enter / Enter to apply" hint under inputs
+   (it doesn't apply on phones) */
+[data-testid="InputInstructions"] {{
+    display: none !important;
+}}
+
+/* Inputs at 16px stop iOS Safari from zooming the page on focus */
+.stTextInput input, .stTextArea textarea, [data-baseweb="select"] {{
+    font-size: 16px !important;
+}}
+
+/* Phones */
+@media (max-width: 640px) {{
+    .block-container {{
+        padding: 1.2rem 0.9rem calc(3rem + env(safe-area-inset-bottom)) !important;
+    }}
+    .hero-banner {{
+        padding: 22px 20px;
+        border-radius: 20px;
+        margin-bottom: 18px;
+    }}
+    .hero-banner h1 {{
+        font-size: 26px !important;
+    }}
+    .feature-card {{
+        min-height: 0;
+        padding: 18px;
+        margin-bottom: 8px;
+    }}
+    .stButton, .stButton button {{
+        width: 100%;
+    }}
+    [class*="st-key-card-"] {{
+        padding: 14px 14px;
+        border-radius: 16px;
+    }}
+    .stTabs [data-baseweb="tab"] {{
+        height: 46px;
+    }}
+}}
+
+/* No hover lift on touch screens; respect reduced-motion */
+@media (hover: none) {{
+    .stButton button:hover {{
+        transform: none !important;
+    }}
+}}
+@media (prefers-reduced-motion: reduce) {{
+    * {{
+        transition: none !important;
+        animation: none !important;
+    }}
+}}
 </style>
 """
 
 st.markdown(CUSTOM_CSS, unsafe_allow_html=True)
+
+
+def inject_pwa_tags():
+    """
+    Make the app installable ("Add to Home Screen") by adding a web manifest,
+    icons and theme colour to the page <head>. Needs static serving turned on
+    (see .streamlit/config.toml) and the files in ./static/.
+    """
+    components.html(
+        """
+        <script>
+        try {
+          const doc = window.parent.document;
+          const add = (selector, tag, attrs) => {
+            if (doc.head.querySelector(selector)) return;
+            const el = doc.createElement(tag);
+            Object.entries(attrs).forEach(([k, v]) => el.setAttribute(k, v));
+            doc.head.appendChild(el);
+          };
+          add('link[rel="manifest"]', 'link', {rel: 'manifest', href: '/app/static/manifest.json'});
+          add('link[rel="apple-touch-icon"]', 'link', {rel: 'apple-touch-icon', href: '/app/static/apple-touch-icon.png'});
+          add('meta[name="theme-color"]', 'meta', {name: 'theme-color', content: '#A78BFA'});
+          add('meta[name="mobile-web-app-capable"]', 'meta', {name: 'mobile-web-app-capable', content: 'yes'});
+          add('meta[name="apple-mobile-web-app-capable"]', 'meta', {name: 'apple-mobile-web-app-capable', content: 'yes'});
+          add('meta[name="apple-mobile-web-app-title"]', 'meta', {name: 'apple-mobile-web-app-title', content: 'Marginalia'});
+          add('meta[name="apple-mobile-web-app-status-bar-style"]', 'meta', {name: 'apple-mobile-web-app-status-bar-style', content: 'default'});
+        } catch (e) { /* page is in a cross-origin frame; skip */ }
+        </script>
+        """,
+        height=0,
+    )
+
+
+inject_pwa_tags()
 
 SESSION_LIMIT = 15
 
@@ -554,14 +761,40 @@ Answer clearly and directly."""
 
 
 MERMAID_HTML_TEMPLATE = """
-<div class="mermaid">
+<style>
+  body {{ margin: 0; background: transparent; display: flex; justify-content: center; }}
+  .mermaid {{ max-width: 100%; }}
+  .mermaid svg {{ max-width: 100%; height: auto; }}
+  #err {{ display: none; padding: 14px; font: 14px/1.5 sans-serif; color: {fg}; }}
+</style>
+<div class="mermaid" id="d">
 {diagram}
 </div>
+<div id="err">Couldn't draw this diagram. Open "View diagram code" below to read it as text.</div>
 <script type="module">
   import mermaid from 'https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.esm.min.mjs';
-  mermaid.initialize({{ startOnLoad: true, theme: 'neutral' }});
+  mermaid.initialize({{ startOnLoad: false, theme: '{theme}' }});
+  try {{
+    await mermaid.run({{ querySelector: '.mermaid' }});
+  }} catch (e) {{
+    document.getElementById('d').style.display = 'none';
+    document.getElementById('err').style.display = 'block';
+  }}
 </script>
 """
+
+
+def render_mermaid(diagram_code: str):
+    """Draw a Mermaid diagram, matching the app's light/dark theme."""
+    components.html(
+        MERMAID_HTML_TEMPLATE.format(
+            diagram=html.escape(diagram_code),
+            theme="dark" if dark_mode else "neutral",
+            fg=_ink,
+        ),
+        height=420,
+        scrolling=True,
+    )
 
 
 def generate_flowchart(raw_text: str, focus_hint: str = "") -> str:
@@ -583,6 +816,23 @@ Notes:
     result = ask_gemini(prompt)
     result = result.replace("```mermaid", "").replace("```", "").strip()
     return result
+
+
+def show_notes_answer(result: dict):
+    """Render a saved answer (and its OCR text) inside a card."""
+    if result.get("ocr"):
+        with st.expander("Raw extracted text (OCR output)"):
+            st.write(result["ocr"])
+    with st.container(key="card-answer"):
+        st.subheader(result["title"])
+        st.markdown(result["answer"])
+
+
+def show_notes_diagram(index: int, code: str):
+    st.subheader(f"📊 Diagram {index}")
+    render_mermaid(code)
+    with st.expander(f"View diagram {index} code (Mermaid syntax)"):
+        st.code(code, language="text")
 
 
 def render_notes_expander():
@@ -652,71 +902,102 @@ def render_notes_expander():
     typed_question = typed_question.strip()
 
     ready = image is not None or bool(typed_question)
+    limit_reached = get_usage_count() >= SESSION_LIMIT
+    if limit_reached:
+        usage_ok()  # shows the "session limit reached" message
+    elif not ready:
+        st.caption("Attach a photo or type a question to enable the button.")
 
-    if ready and usage_ok() and st.button("✨ Write my answer", key="expand_btn"):
+    clicked = st.button(
+        "✨ Write my answer",
+        key="expand_btn",
+        disabled=(not ready or limit_reached),
+        use_container_width=True,
+    )
+
+    # Results live in session_state so they survive reruns (e.g. when the
+    # student asks a follow-up question). Two slots let the answer appear
+    # first and the diagrams fill in underneath as they finish.
+    answer_slot = st.container()
+    diagram_slot = st.container()
+
+    if clicked:
+        for key in ("notes_result", "notes_context", "notes_followups"):
+            st.session_state.pop(key, None)
+
         raw_text = None
+        ocr_text = None
 
         if image is not None:
             with st.spinner("Reading text from image..."):
                 ocr_text = extract_text_from_image(image)
             if not ocr_text.strip():
                 st.error("Couldn't detect any text in this image. Try a clearer photo.")
+            elif typed_question:
+                raw_text = (
+                    f"{ocr_text}\n\n"
+                    f"Student's specific question about the above content: {typed_question}"
+                )
             else:
-                with st.expander("Raw extracted text (OCR output)"):
-                    st.write(ocr_text)
-                if typed_question:
-                    raw_text = (
-                        f"{ocr_text}\n\n"
-                        f"Student's specific question about the above content: {typed_question}"
-                    )
-                else:
-                    raw_text = ocr_text
+                raw_text = ocr_text
         else:
             raw_text = typed_question
 
         if raw_text:
-            # Save this content so the follow-up question box below can use
-            # it as context, even after the page re-runs.
             st.session_state["notes_context"] = raw_text
 
-            expanded = None
-            if client is not None:
+            if client is None:
+                st.info("Add your Gemini API key to see the AI-written answer.")
+            else:
                 label = "Just explain" if marks == "Just explain" else f"{marks}-mark answer"
-                with st.spinner(f"Writing your {label}..."):
-                    try:
-                        expanded = expand_content(raw_text, marks, answer_language, answer_style)
-                        increment_usage_count()
-                        st.subheader("📖 Answer" if marks == "Just explain" else f"📖 {marks}-Mark Answer")
-                        st.markdown(expanded)
-                    except Exception as e:
-                        st.error(friendly_error(e))
+                expanded = None
+                with answer_slot:
+                    with st.spinner(f"Writing your {label}..."):
+                        try:
+                            expanded = expand_content(raw_text, marks, answer_language, answer_style)
+                            increment_usage_count()
+                        except Exception as e:
+                            st.error(friendly_error(e))
 
                 if expanded:
+                    result = {
+                        "title": "📖 Answer" if marks == "Just explain" else f"📖 {marks}-Mark Answer",
+                        "answer": expanded,
+                        "ocr": ocr_text if image is not None else None,
+                        "diagrams": [],
+                    }
+                    st.session_state["notes_result"] = result
+                    with answer_slot:
+                        show_notes_answer(result)
+
                     # More marks -> more diagrams, since a 20-mark answer
                     # typically covers several distinct sub-topics.
                     num_diagrams = 1 if (marks == "Just explain" or marks <= 10) else 2
                     for i in range(num_diagrams):
-                        with st.spinner(f"Drawing diagram {i + 1} of {num_diagrams}..."):
-                            try:
-                                focus = (
-                                    "the main process/cycle described"
-                                    if i == 0
-                                    else "a secondary concept, classification, or comparison from the notes"
-                                )
-                                diagram_code = generate_flowchart(raw_text, focus_hint=focus)
-                                increment_usage_count()
-                                st.subheader(f"📊 Diagram {i + 1}")
-                                components.html(
-                                    MERMAID_HTML_TEMPLATE.format(diagram=diagram_code),
-                                    height=420,
-                                    scrolling=True,
-                                )
-                                with st.expander(f"View diagram {i + 1} code (Mermaid syntax)"):
-                                    st.code(diagram_code, language="text")
-                            except Exception as e:
-                                st.error(f"Diagram generation failed. {friendly_error(e)}")
-            else:
-                st.info("Add your Gemini API key to see the AI-written answer.")
+                        focus = (
+                            "the main process/cycle described"
+                            if i == 0
+                            else "a secondary concept, classification, or comparison from the notes"
+                        )
+                        with diagram_slot:
+                            with st.spinner(f"Drawing diagram {i + 1} of {num_diagrams}..."):
+                                try:
+                                    code = generate_flowchart(raw_text, focus_hint=focus)
+                                    increment_usage_count()
+                                except Exception as e:
+                                    st.error(f"Diagram generation failed. {friendly_error(e)}")
+                                    continue
+                            result["diagrams"].append(code)
+                            st.session_state["notes_result"] = result
+                            show_notes_diagram(len(result["diagrams"]), code)
+    else:
+        saved = st.session_state.get("notes_result")
+        if saved:
+            with answer_slot:
+                show_notes_answer(saved)
+            with diagram_slot:
+                for i, code in enumerate(saved["diagrams"], start=1):
+                    show_notes_diagram(i, code)
 
     # ---- Follow-up question, grounded in the last uploaded/typed content ----
     if st.session_state.get("notes_context"):
@@ -731,21 +1012,36 @@ def render_notes_expander():
             placeholder="e.g. What would happen in this case if... / Solve for x in the second equation",
             key="followup_question",
         )
-        if usage_ok() and st.button("Answer my question", key="followup_btn"):
+        followup_limit = get_usage_count() >= SESSION_LIMIT
+        if followup_limit:
+            usage_ok()
+        if st.button(
+            "Answer my question",
+            key="followup_btn",
+            disabled=followup_limit,
+            use_container_width=True,
+        ):
             if not followup_q.strip():
                 st.error("Type a question first.")
-            elif client is not None:
+            elif client is None:
+                st.info("Add your Gemini API key to use this feature.")
+            else:
                 with st.spinner("Thinking..."):
                     try:
                         answer = answer_followup_question(
                             st.session_state["notes_context"], followup_q, answer_language
                         )
                         increment_usage_count()
-                        st.markdown(answer)
+                        st.session_state.setdefault("notes_followups", []).append(
+                            {"q": followup_q.strip(), "a": answer}
+                        )
                     except Exception as e:
                         st.error(friendly_error(e))
-            else:
-                st.info("Add your Gemini API key to use this feature.")
+
+        for i, item in enumerate(st.session_state.get("notes_followups", [])):
+            with st.container(key=f"card-followup-{i}"):
+                st.markdown(f"**You asked:** {item['q']}")
+                st.markdown(item["a"])
 
 
 # ---------------- FEATURE 2: BOOK READER (image -> TTS + MEANING NOTES) ----------------
@@ -855,7 +1151,7 @@ def render_book_reader():
         image = Image.open(uploaded_file)
         st.image(image, caption="Your page (click to enlarge)", width=220)
 
-        if usage_ok() and st.button("🔊 Read this page"):
+        if usage_ok() and st.button("🔊 Read this page", use_container_width=True):
             with st.spinner("Reading text from image..."):
                 raw_text = extract_text_from_image(image)
 
@@ -894,8 +1190,9 @@ def render_book_reader():
                         try:
                             notes = generate_meaning_notes(passage, language_name)
                             increment_usage_count()
-                            st.markdown("**💭 Meaning & motive notes**")
-                            st.markdown(notes)
+                            with st.container(key="card-notes"):
+                                st.markdown("**💭 Meaning & motive notes**")
+                                st.markdown(notes)
                         except Exception as e:
                             st.error(friendly_error(e))
 
@@ -924,13 +1221,6 @@ with st.sidebar:
         unsafe_allow_html=True,
     )
 
-    page = st.radio(
-        "Navigate",
-        NAV_OPTIONS,
-        key="current_page",
-        label_visibility="collapsed",
-    )
-
     st.divider()
     st.toggle("🌙 Dark mode", key="dark_mode")
     st.caption(f"Usage this session: {get_usage_count()}/{SESSION_LIMIT}")
@@ -940,6 +1230,15 @@ with st.sidebar:
         st.divider()
         st.caption(f"👋 Signed in as {st.user.name}")
         st.button("Log out", on_click=st.logout, use_container_width=True)
+
+# Top navigation: always visible, big enough to tap on a phone
+page = st.radio(
+    "Navigate",
+    NAV_OPTIONS,
+    key="current_page",
+    horizontal=True,
+    label_visibility="collapsed",
+)
 
 if client is None:
     st.warning(
@@ -963,7 +1262,7 @@ if page == "🏠 Home":
     with col1:
         st.markdown(
             """
-            <div class="feature-card" style="height:210px;">
+            <div class="feature-card">
                 <div style="font-size:28px;">📝</div>
                 <div style="font-family:'Quicksand',sans-serif; font-weight:700; font-size:18px; margin:8px 0 6px; color:var(--ink);">Notes Expander</div>
                 <div style="font-size:13.5px; color:var(--ink-soft); line-height:1.5;">
@@ -983,7 +1282,7 @@ if page == "🏠 Home":
     with col2:
         st.markdown(
             """
-            <div class="feature-card" style="height:210px;">
+            <div class="feature-card">
                 <div style="font-size:28px;">🎧</div>
                 <div style="font-family:'Quicksand',sans-serif; font-weight:700; font-size:18px; margin:8px 0 6px; color:var(--ink);">Book Reader</div>
                 <div style="font-size:13.5px; color:var(--ink-soft); line-height:1.5;">

@@ -1,0 +1,13 @@
+# Never commit secrets (API keys, passwords, Google OAuth credentials)
+.streamlit/secrets.toml
+.env
+
+# Python
+__pycache__/
+*.pyc
+.venv/
+venv/
+
+# OS / editor
+.DS_Store
+.vscode/

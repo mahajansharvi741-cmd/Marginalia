@@ -1,0 +1,11 @@
+[server]
+# Needed so the web manifest and icons in ./static are served
+# (available at /app/static/...) and the app can be installed on phones.
+enableStaticServing = true
+
+[theme]
+primaryColor = "#FF6B81"
+backgroundColor = "#FFF9F5"
+secondaryBackgroundColor = "#FDF4FF"
+textColor = "#3D3358"
+font = "sans serif"

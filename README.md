@@ -19,6 +19,8 @@ passages aloud in English, Hindi, Punjabi, or Hinglish with meaning notes.
   aloud in English, Hindi, Punjabi, or Hinglish, with AI notes on the
   meaning or motive behind key lines, in the same language.
 - **Dark mode** — toggle in the sidebar, applies across the whole app.
+- **Mobile-friendly & installable** — top navigation, big tap targets,
+  and an "Add to Home Screen" install on phones (see below).
 
 ## Why I built it
 
@@ -42,9 +44,16 @@ barrier for students.
 
 ```
 study-app/
-├── app.py              # Main application (all features)
-├── requirements.txt    # Python dependencies
-├── packages.txt         # System packages (Tesseract) for cloud deploy
+├── app.py                          # Main application (all features)
+├── requirements.txt                # Python dependencies
+├── packages.txt                    # System packages (Tesseract) for cloud deploy
+├── .gitignore                      # Keeps secrets out of GitHub
+├── .streamlit/
+│   ├── config.toml                 # Theme + static file serving
+│   └── secrets.toml.example        # Template for your keys (copy -> secrets.toml)
+├── static/
+│   ├── manifest.json               # Makes the app installable on phones
+│   └── icon-192.png, icon-512.png, apple-touch-icon.png
 └── README.md
 ```
 
@@ -87,9 +96,40 @@ Opens at http://localhost:8501
 
 ---
 
+## Putting it on GitHub
+
+Streamlit Community Cloud deploys straight from a GitHub repo, so do this first.
+
+1. Create a free account at https://github.com if you don't have one.
+2. Click **New repository**, name it (e.g. `marginalia`), choose Public
+   (or Private), and **don't** tick "Add a README" — you already have one.
+3. In a terminal, from inside the project folder:
+   ```bash
+   cd study-app
+   git init
+   git add .
+   git commit -m "Marginalia: first commit"
+   git branch -M main
+   git remote add origin https://github.com/YOUR-USERNAME/marginalia.git
+   git push -u origin main
+   ```
+4. Refresh the GitHub page — you should see `app.py`, `requirements.txt`,
+   `packages.txt`, `static/` and `.streamlit/config.toml`.
+5. **Check that `secrets.toml` is NOT in the repo.** `.gitignore` already
+   blocks it, but if you ever committed a key by mistake, delete that key
+   at https://aistudio.google.com/apikey and create a new one — removing the
+   file isn't enough, it stays in Git history.
+
+No terminal? On the new repo page click **uploading an existing file** and
+drag in everything from `study-app/` (including the `static` and `.streamlit`
+folders). Don't upload any `secrets.toml`.
+
+Later updates: edit files, then `git add . && git commit -m "what changed" && git push`.
+Streamlit Cloud redeploys automatically.
+
 ## Deploying for free (Streamlit Community Cloud)
 
-1. Push this project to a public GitHub repo.
+1. Push this project to GitHub (see above).
 2. Go to https://share.streamlit.io, sign in with GitHub.
 3. Click "New app", pick your repo, set main file to `app.py`, deploy.
 4. Settings → Secrets, add:
@@ -97,7 +137,20 @@ Opens at http://localhost:8501
    GEMINI_API_KEY = "your-key-here"
    APP_PASSWORD = "choose-any-password"
    ```
-5. You'll get a live link like `yourname-studyboost.streamlit.app`.
+5. You'll get a live link like `yourname-marginalia.streamlit.app`.
+   (Secrets format: see `.streamlit/secrets.toml.example`.)
+
+## Installing it on a phone
+
+Open the live link in Chrome (Android) or Safari (iPhone), then use
+**Add to Home Screen** / **Install app**. It opens full-screen with the
+Marginalia icon. It still needs an internet connection — it isn't an
+offline app.
+
+Heads-up: on Streamlit Community Cloud the install prompt may not appear,
+because the page wrapping your app belongs to Streamlit, not you. Adding it
+to the home screen as a plain shortcut still works. Full install support is
+reliable when you host the app yourself at a root URL (Render, Railway, a VPS).
 
 ## Setting up Google Login (optional)
 
@@ -151,6 +204,10 @@ this up — it's free but requires creating your own Google OAuth credentials.
 - A 20-mark answer uses more AI calls (1 for the answer + 2 for diagrams)
   than a 5-mark one, so it counts more against Gemini's free-tier rate
   limits — a brief wait usually resolves any rate-limit error.
+- Answers, diagrams and follow-up questions now stay on screen after you ask
+  a follow-up (results are kept in the session instead of vanishing).
+- On a phone, text boxes only save what you typed when you tap outside
+  them — tap elsewhere before pressing "Write my answer".
 - Hinglish text is generated accurately, but there's no dedicated Hinglish
   TTS voice, so its audio uses the closest available voice.
 - Text extraction from images now uses Gemini's vision capability (much
